@@ -31,6 +31,7 @@ class Dual:
     dual: float = 0.0
 
     def __post_init__(self) -> None:
+        # frozen dataclasses need  object.__setattr__ to force a type cast
         object.__setattr__(self, "real", float(self.real))
         object.__setattr__(self, "dual", float(self.dual))
 
@@ -169,12 +170,15 @@ def _unary(
         df: Callable[[float], float],
 ) -> Callable[[NumberLike], Dual | float]:
     """Makes small unary functions"""
+    # Helper to bind a math function to its derivative so we don't
+    # have to write 20 identical methods.
     lifted = lift_unary(f, df)
     lifted.__name__ = name
     lifted.__doc__ = f"Return {name}(x) for a scalar or dual argument."
     return lifted
 
 
+# Just maping the functions to their derivatives
 sin = _unary("sin", math.sin, math.cos)
 cos = _unary("cos", math.cos, lambda x: -math.sin(x))
 tan = _unary("tan", math.tan, lambda x: 1.0 + math.tan(x) * math.tan(x))
