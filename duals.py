@@ -1,7 +1,7 @@
 """
 A simple implementation of dual numbers for forward automatic
 differentiation using the Python standard library.
-  
+
 A dual number is of the form a + bε,
 where ε is an infinitesimal that satisfies ε^2 = 0.
 The real part a represents the value of the function
@@ -85,7 +85,7 @@ class Dual:
             (other.dual * self.real - other.real * self.dual) / denom,
         )
 
-    def __pow__(self, exponent: Dual | Scalar) -> Dual:
+    def __pow__(self, exponent: Dual | Scalar) -> Dual | float:
         exponent = _coerce(exponent)
 
         if exponent.dual == 0.0:
@@ -101,7 +101,7 @@ class Dual:
 
         return exp(exponent * log(self))
 
-    def __rpow__(self, base: Dual | Scalar) -> Dual:
+    def __rpow__(self, base: Dual | Scalar) -> Dual | float:
         base = _coerce(base)
 
         if base.dual == 0.0:
@@ -215,7 +215,10 @@ def sqrt(value: NumberLike) -> Dual | float:
     return math.sqrt(float(value))
 
 
-def differentiate(function: Callable[[Dual], Dual | float], point: float) -> float:
+def differentiate(
+        function: Callable[[Dual], Dual | float],
+        point: float,
+) -> float:
     """Return the derivative of function at point."""
     result = function(Dual.variable(point))
 
